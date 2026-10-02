@@ -5,6 +5,8 @@ interactions:
 
 > Touch the earth. Disturb the water.
 
+DEMO : [https://nithyasrid.github.io/earth-and-ripple/](https://nithyasrid.github.io/earth-and-ripple/)
+
 ## Experiments
 
 ### 01 — Living Sand
