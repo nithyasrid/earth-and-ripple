@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>EARTH & RIPPLE</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#07100d;color:#f5f1e8;font-family:Inter,Arial,sans-serif}
+body{cursor:crosshair}
+#intro{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at center,#18382b 0%,#09140f 45%,#030705 100%);transition:opacity 1s,visibility 1s}
+#intro.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.intro-inner{animation:introIn 1.4s ease forwards}
+.intro-line{width:80px;height:1px;background:#ffffff73;margin:0 auto 28px}
+.intro-title{font-size:clamp(48px,9vw,110px);font-weight:300;letter-spacing:.18em;margin-left:.18em}
+.intro-subtitle{margin-top:20px;font-size:15px;letter-spacing:.18em;color:#ffffff94;text-transform:uppercase}
+.enter{margin-top:45px;padding:15px 28px;border:1px solid #ffffff4d;background:#ffffff0a;color:white;border-radius:100px;font-size:12px;letter-spacing:.2em;cursor:pointer;transition:.3s}
+.enter:hover{background:white;color:#07100d;transform:translateY(-2px)}
+@keyframes introIn{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
+#app{width:100%;height:100%;position:relative;opacity:0;transform:scale(1.03);transition:opacity 1s,transform 1.2s}
+#app.visible{opacity:1;transform:scale(1)}
+#menu{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:35px;padding:30px}
+.menu-title{font-size:clamp(34px,6vw,70px);font-weight:300;letter-spacing:.15em;margin-left:.15em}
+.menu-subtitle{margin-top:-20px;color:#ffffff73;letter-spacing:.12em;font-size:12px;text-transform:uppercase}
+.cards{display:flex;gap:20px;width:min(900px,100%)}
+.card{flex:1;min-height:230px;border:1px solid #ffffff1f;background:#ffffff09;border-radius:24px;padding:35px;cursor:pointer;transition:.4s;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-8px);border-color:#ffffff4d;background:#ffffff12}
+.card-number{font-size:11px;letter-spacing:.2em;color:#ffffff59}
+.card-title{margin-top:45px;font-size:27px;font-weight:400}
+.card-description{margin-top:14px;line-height:1.7;font-size:13px;color:#ffffff80}
+.experiment{position:absolute;inset:0;opacity:0;visibility:hidden;transform:scale(.97);transition:opacity .7s,transform .8s,visibility .7s}
+.experiment.active{opacity:1;visibility:visible;transform:scale(1)}
+canvas{width:100%;height:100%;display:block}
+.topbar{position:absolute;top:25px;left:25px;right:25px;display:flex;justify-content:space-between;align-items:center;z-index:5;pointer-events:none}
+.lab-title{font-size:11px;letter-spacing:.18em;color:#ffffff99}
+.controls{display:flex;gap:8px;pointer-events:auto}
+.control{border:1px solid #ffffff2e;background:#0003;backdrop-filter:blur(10px);color:white;padding:9px 14px;border-radius:100px;cursor:pointer;font-size:11px;letter-spacing:.08em}
+.hint{position:absolute;bottom:35px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;z-index:4}
+.hint-main{font-size:14px;letter-spacing:.08em}
+.hint-sub{margin-top:8px;font-size:11px;color:#ffffff66}
+@media(max-width:700px){.cards{flex-direction:column}.card{min-height:150px;padding:25px}.card-title{margin-top:25px;font-size:22px}.card-description{font-size:12px}.menu-title{font-size:35px}.intro-title{font-size:45px}}
+</style>
+</head>
+<body>
+
+<section id="intro">
+  <div class="intro-inner">
+    <div class="intro-line"></div>
+    <h1 class="intro-title">EARTH & RIPPLE</h1>
+    <p class="intro-subtitle">Touch the earth. Disturb the water.</p>
+    <button class="enter" id="enterButton">ENTER THE EXPERIENCE</button>
+  </div>
+</section>
+
+<main id="app">
+<section id="menu">
+  <h1 class="menu-title">EARTH & RIPPLE</h1>
+  <p class="menu-subtitle">Two physical experiments</p>
+  <div class="cards">
+    <div class="card" id="earthCard">
+      <div class="card-number">01</div>
+      <div class="card-title">Living Sand</div>
+      <div class="card-description">Move through the sand and watch the grains respond. Move slowly and they follow. Move fast and they burst outward.</div>
+    </div>
+    <div class="card" id="rippleCard">
+      <div class="card-number">02</div>
+      <div class="card-title">Liquid Glass</div>
+      <div class="card-description">Touch the surface and create waves. Gentle movement creates subtle ripples. Fast movement creates larger waves.</div>
+    </div>
+  </div>
+</section>
+
+<section class="experiment" id="earthExperiment">
+  <div class="topbar">
+    <div class="lab-title">EARTH / LIVING SAND</div>
+    <div class="controls">
+      <button class="control" id="earthBack">BACK</button>
+      <button class="control" id="soundButton">SOUND ON</button>
+    </div>
+  </div>
+  <canvas id="sandCanvas"></canvas>
+  <div class="hint">
+    <div class="hint-main">Move through the sand</div>
+    <div class="hint-sub">Slow movement attracts. Fast movement scatters.</div>
+  </div>
+</section>
+
+<section class="experiment" id="rippleExperiment">
+  <div class="topbar">
+    <div class="lab-title">RIPPLE / LIQUID GLASS</div>
+    <div class="controls"><button class="control" id="waterBack">BACK</button></div>
+  </div>
+  <canvas id="waterCanvas"></canvas>
+  <div class="hint">
+    <div class="hint-main">Touch the water</div>
+    <div class="hint-sub">Gentle movement creates ripples. Fast movement creates waves.</div>
+  </div>
+</section>
+</main>
+
+<script>
+const intro=document.getElementById("intro"),app=document.getElementById("app"),menu=document.getElementById("menu");
+const earthExperiment=document.getElementById("earthExperiment"),rippleExperiment=document.getElementById("rippleExperiment");
+
+let audioContext=null,masterGain=null,audioEnabled=true;
+
+function startAudio(){
+ if(audioContext)return;
+ audioContext=new(window.AudioContext||window.webkitAudioContext)();
+ masterGain=audioContext.createGain();
+ masterGain.gain.value=.13;
+ masterGain.connect(audioContext.destination);
+ const buffer=audioContext.createBuffer(1,audioContext.sampleRate*2,audioContext.sampleRate);
+ const data=buffer.getChannelData(0);
+ for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*.25;
+ const source=audioContext.createBufferSource(),filter=audioContext.createBiquadFilter(),gain=audioContext.createGain();
+ source.buffer=buffer;source.loop=true;filter.type="lowpass";filter.frequency.value=700;gain.gain.value=.08;
+ source.connect(filter);filter.connect(gain);gain.connect(masterGain);source.start();
+}
+function tone(f,d,v){
+ if(!audioContext||!audioEnabled)return;
+ const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+ osc.frequency.value=f;gain.gain.setValueAtTime(v,audioContext.currentTime);
+ gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+d);
+ osc.connect(gain);gain.connect(masterGain);osc.start();osc.stop(audioContext.currentTime+d);
+}
+document.getElementById("enterButton").onclick=()=>{startAudio();intro.classList.add("hidden");setTimeout(()=>app.classList.add("visible"),300)};
+document.getElementById("earthCard").onclick=()=>{menu.style.display="none";earthExperiment.classList.add("active")};
+document.getElementById("rippleCard").onclick=()=>{menu.style.display="none";rippleExperiment.classList.add("active")};
+document.getElementById("earthBack").onclick=()=>{earthExperiment.classList.remove("active");setTimeout(()=>menu.style.display="flex",400)};
+document.getElementById("waterBack").onclick=()=>{rippleExperiment.classList.remove("active");setTimeout(()=>menu.style.display="flex",400)};
+document.getElementById("soundButton").onclick=()=>{
+ audioEnabled=!audioEnabled;
+ document.getElementById("soundButton").textContent=audioEnabled?"SOUND ON":"SOUND OFF";
+};
+
+/* EARTH */
+const sandCanvas=document.getElementById("sandCanvas"),sandCtx=sandCanvas.getContext("2d");
+let grains=[],sandPointer={x:-1000,y:-1000,speed:0,active:false};
+function resizeSand(){sandCanvas.width=innerWidth;sandCanvas.height=innerHeight;createSand()}
+function createSand(){
+ grains=[];
+ const count=Math.min(1200,Math.floor(sandCanvas.width*sandCanvas.height/850));
+ for(let i=0;i<count;i++)grains.push({x:Math.random()*sandCanvas.width,y:sandCanvas.height*.35+Math.random()*sandCanvas.height*.6,vx:0,vy:0,size:Math.random()*1.7+.4});
+}
+function drawSand(){
+ const w=sandCanvas.width,h=sandCanvas.height;
+ const g=sandCtx.createLinearGradient(0,0,0,h);
+ g.addColorStop(0,"#14261e");g.addColorStop(.45,"#5a4630");g.addColorStop(1,"#b28753");
+ sandCtx.fillStyle=g;sandCtx.fillRect(0,0,w,h);
+ sandCtx.beginPath();sandCtx.moveTo(0,h*.57);
+ for(let x=0;x<=w;x+=10)sandCtx.lineTo(x,h*.57+Math.sin(x*.004)*20+Math.sin(x*.011)*12);
+ sandCtx.lineTo(w,h);sandCtx.lineTo(0,h);sandCtx.fillStyle="#8d6841";sandCtx.fill();
+ for(const p of grains){
+   p.vx*=.93;p.vy*=.93;
+   const dx=sandPointer.x-p.x,dy=sandPointer.y-p.y,d=Math.hypot(dx,dy);
+   if(sandPointer.active&&d<130){
+     const s=1-d/130;
+     if(sandPointer.speed<10){p.vx+=dx*.0009*s*sandPointer.speed;p.vy+=dy*.0009*s*sandPointer.speed}
+     else{const a=Math.atan2(p.y-sandPointer.y,p.x-sandPointer.x),b=s*(sandPointer.speed/10);p.vx+=Math.cos(a)*b;p.vy+=Math.sin(a)*b}
+   }
+   p.x+=p.vx;p.y+=p.vy;
+   if(p.x<0){p.x=0;p.vx*=-.4} if(p.x>w){p.x=w;p.vx*=-.4}
+   if(p.y>h-5){p.y=h-5;p.vy*=-.3}
+   sandCtx.beginPath();sandCtx.arc(p.x,p.y,p.size,0,Math.PI*2);sandCtx.fillStyle=`rgba(230,190,125,${.35+p.size/3})`;sandCtx.fill();
+ }
+ requestAnimationFrame(drawSand);
+}
+let lastSX=0,lastSY=0,lastST=performance.now();
+function sandMove(x,y){
+ const now=performance.now(),dt=Math.max(1,now-lastST),speed=Math.hypot(x-lastSX,y-lastSY)/dt*16;
+ sandPointer={x,y,speed,active:true};lastSX=x;lastSY=y;lastST=now;
+ if(speed>4)tone(100+Math.random()*80,.05,.018);
+}
+sandCanvas.addEventListener("pointermove",e=>sandMove(e.clientX,e.clientY));
+sandCanvas.addEventListener("pointerdown",e=>{sandPointer.active=true;sandMove(e.clientX,e.clientY)});
+sandCanvas.addEventListener("pointerleave",()=>sandPointer.active=false);
+
+/* WATER */
+const waterCanvas=document.getElementById("waterCanvas"),waterCtx=waterCanvas.getContext("2d");
+let ripples=[],waterPointer={active:false},lastWX=0,lastWY=0,lastWT=performance.now();
+function resizeWater(){waterCanvas.width=innerWidth;waterCanvas.height=innerHeight}
+function createRipple(x,y,strength){ripples.push({x,y,radius:2,strength:Math.min(1,strength),alpha:1});tone(300+strength*300,.35,.035)}
+function drawWater(){
+ const w=waterCanvas.width,h=waterCanvas.height;
+ const g=waterCtx.createLinearGradient(0,0,0,h);
+ g.addColorStop(0,"#071b1d");g.addColorStop(.5,"#0b4c4d");g.addColorStop(1,"#021011");
+ waterCtx.fillStyle=g;waterCtx.fillRect(0,0,w,h);
+ for(let y=0;y<h;y+=38){
+   waterCtx.beginPath();
+   for(let x=0;x<=w;x+=10){const yy=y+Math.sin(x*.009+y*.015+performance.now()*.0005)*2;x?waterCtx.lineTo(x,yy):waterCtx.moveTo(x,yy)}
+   waterCtx.strokeStyle="rgba(150,240,230,.07)";waterCtx.stroke();
+ }
+ for(let i=ripples.length-1;i>=0;i--){
+   const r=ripples[i];r.radius+=1.5+r.strength*2;r.alpha*=.975;
+   for(let ring=0;ring<3;ring++){
+     waterCtx.beginPath();waterCtx.arc(r.x,r.y,r.radius+ring*12,0,Math.PI*2);
+     waterCtx.strokeStyle=`rgba(180,255,248,${r.alpha*r.strength*(.3-ring*.07)})`;waterCtx.lineWidth=1.5;waterCtx.stroke();
+   }
+   if(r.alpha<.02)ripples.splice(i,1);
+ }
+ for(let i=0;i<50;i++){
+   const x=(i*137.7)%w,y=(i*83.3)%h,glow=.15+Math.sin(performance.now()*.002+i)*.1;
+   waterCtx.fillStyle=`rgba(220,255,250,${glow})`;waterCtx.fillRect(x,y,1,1);
+ }
+ requestAnimationFrame(drawWater);
+}
+waterCanvas.addEventListener("pointerdown",e=>{
+ waterPointer.active=true;lastWX=e.clientX;lastWY=e.clientY;lastWT=performance.now();createRipple(e.clientX,e.clientY,.35);
+});
+waterCanvas.addEventListener("pointermove",e=>{
+ if(!waterPointer.active)return;
+ const now=performance.now(),dt=Math.max(1,now-lastWT),speed=Math.hypot(e.clientX-lastWX,e.clientY-lastWY)/dt*16;
+ if(speed>1)createRipple(e.clientX,e.clientY,Math.min(1,speed/14));
+ lastWX=e.clientX;lastWY=e.clientY;lastWT=now;
+});
+waterCanvas.addEventListener("pointerup",()=>waterPointer.active=false);
+waterCanvas.addEventListener("pointerleave",()=>waterPointer.active=false);
+
+addEventListener("resize",()=>{resizeSand();resizeWater()});
+resizeSand();resizeWater();drawSand();drawWater();
+</script>
+</body>
+</html>
